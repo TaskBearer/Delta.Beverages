@@ -1,0 +1,307 @@
+﻿@using Microsoft.AspNetCore.Http
+@model HomeViewModel;
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="~/css/Style.css">
+    <style>
+        .div-scroll{
+        height: 460px;
+        overflow-y: auto;
+        width: fit-content;
+        }
+
+        .asset-container {
+        background-color: #ededed;
+        width: 588px;
+        height: 184px;
+        margin: 20px;
+        border: none;
+        border-radius: 4px;
+        display: flex;
+        flex-direction: column;
+        flex-wrap: nowrap;
+        align-items: center;
+        padding: 2px;
+        }
+
+        .total-run {
+        float: center;
+        display: flex;
+        flex-direction: column; /* flex-wrap: nowrap; */
+        justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <input type="hidden" id="hdnRunsId" value='@Model.RunsTimeWindowDetails.FirstOrDefault().RunsID' />
+    <input type="hidden" id="hdnRunsDetailsId" value="" />
+    <section class="header-section">
+        <div class="header-div">
+            <a asp-area="" asp-controller="Home" asp-action="Index">
+                <br />
+                <img class="logo" src="~/img/Logo.jfif" />
+            </a>
+            <img src="~/img/Group.svg" />
+            <select id="ddlUser" style="border:none" onchange="SetUser()">
+                @foreach (var row in Model.AllUsers)
+                {
+                    var selectedUser = HttpContextAccessor.HttpContext.Session.GetString("user") == @row.ID;
+                    <option value="@row.ID" selected='@selectedUser'>@row.Name</option>
+                }
+            </select>
+        </div>
+    </section>
+    <section class="run-details-wrapper">
+        <section class="left-pane">
+            <div class="line-description"><b>@Model.RunDetails.Description</b></div>
+            <div class="run-count"><b>Run count</b></div>
+            <div class="div-scroll">
+                @foreach (var row in Model.RunsTimeWindowDetails)
+                {
+                    var id = "txtCount_" + row.ID;
+                    <div class="run-details-row">
+                        <input class="run-details-input" type="text" id="txtTime" value='@row.TimeWindowTimeStamp'>
+
+                        @if (row.Count == "0")
+                        {
+                            <input class="run-details-input-count" type="text" id='@id' value='@row.Count' >
+                        }
+                        else
+                        {
+                            <input class="run-details-input-count" style="background-color: white;" type="text" id='@id' value='@row.Count'>
+                        }
+                        <div class="run-details-input-submit" onclick="SubmitCount('@row.ID')">Submit</div>
+                        <div class="run-details-input-add" onclick="AddDowntime('@row.ID')">
+                            <div class="add-downtime">
+                                <img src="~/img/+.svg" />
+                            </div>Add Downtime</div>
+                    </div>
+                }
+            </div>
+            <div class="run-details-row">
+                <div class="run-details-end-run" onclick="ShowEndRun()">
+                    <div class="text-wrapper">END RUN</div>
+                    <div class="rectangle-end-production">
+                        <div class="rectangle-end-prod"></div>
+                    </div>
+                </div>
+                <div class="total-run" style="background-color:inherit;">
+                    <b>TOTAL RUN COUNT : <label id="lblTotalRun">@Model?.RunsTimeWindowDetails?.Sum(s=> Convert.ToInt16(s.Count)).ToString()</label></b>
+                </div>
+            </div>
+        </section>
+        <section>
+            <div class="runs-header">
+                <div class="line-description"><b>Asset Impacted by downtime</b></div>
+            </div>
+            <div class="div-scroll">
+                @foreach(var downTime in Model.AssetList)
+                {
+                    <div class="asset-container">
+                        <div class="run-details-row">
+
+                        <select id="ddlAsset" class="run-details-input-asset">
+                            <option value="0">Select Asset</option>
+                            @foreach (var asset in Model.AllAssets)
+                            {
+                                var selectedAsset = asset.AssetNumberID == downTime.AssetId;
+                                <option value='@asset.AssetNumberID' selected='@selectedAsset'>@asset.AssetName</option>
+                            }
+                        </select>
+                        <input class="run-details-input-time" type="text" id="txtTime" value='@downTime.DownTime' placeholder="time(min)">
+                    
+                        </div>
+                        <div class="run-details-row">
+                            <input class="run-details-input-notes" type="text" id="txtNotes" value='@downTime.Notes' placeholder="Notes">
+                        </div>
+                    </div>
+                }
+                <div class="asset-container" style="display:none" id="divAddewAsset">
+                    <div class="run-details-row">
+
+                        <select id="ddlNewAsset" class="run-details-input-asset">
+                            <option value="0">Select Asset</option>
+                            @foreach (var asset in Model.AllAssets)
+                            {
+                                <option value='@asset.AssetNumberID'>@asset.AssetName</option>
+                            }
+                        </select>
+                        <input class="run-details-input-time" type="text" id="txtNewTime" value="" placeholder="time(min)">
+
+                    </div>
+                    <div class="run-details-row">
+                        <input class="run-details-input-notes" type="text" id="txtNewNotes" value="" placeholder="Notes">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="run-details-row">
+                <div class="run-details-end-run" onclick="AddNewAsset()">
+                    <div class="text-wrapper">ADD ASSET</div>
+                    <div class="add-Asset">
+                        <img src="~/img/+.svg" />
+                    </div>
+                </div>
+            </div>
+        </section>
+    </section>
+    <div class="modal" id="modalValidation">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <div>
+                <p id="idMsg"></p>
+                <button class="open-modal-btn" onclick="closeModal()">Ok</button>
+            </div>
+        </div>
+    </div>
+    <div class="modal" id="modalRunProduction">
+        <div class="modal-content">
+            <p>Do you want to End Run and go back to Home page?</p>
+            <div style="margin-top: 100px;">
+                <button class="open-modal-btn-ok" onclick="EndRun()">Ok</button>
+                <button class="open-modal-btn-cancel" onclick="HideEndRun()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+<script type="text/javascript">
+     window.onclick = function(event) {
+        let modal = document.getElementById("modalValidation");
+        if (event.target === modal) {
+        modal.style.display = "none";
+        }
+    }
+
+    function closeModal() {
+        document.getElementById("modalValidation").style.display = "none";
+    }
+
+    function SubmitCount(ID)
+    {
+        debugger;
+        var txtCount = "#txtCount_" + ID;
+        $.ajax({
+            type: "GET",
+            url: "/RunDetails/Submit",
+            data: {
+                runDetailsID: ID,
+                count: $(txtCount).val()
+            },
+            success: function (response) {
+                debugger;
+                $("#lblTotalRun").text(response);
+                if($(txtCount).val() == "0")
+                {
+                    $(txtCount).css({"background-color": "rgba(255, 50, 50, 1)"});
+                }
+                else{
+                    $(txtCount).css({"background-color": "white"});
+                }
+            },
+            error: function (response) {
+
+            }
+        })
+    }
+
+    function SetUser()
+    {
+        $.ajax({
+            type: "GET",
+            url: "/RunDetails/SetUser",
+            data: {
+                UserId: $("#ddlUser").val()
+            },
+            success: function (response) {
+            },
+            error: function (response) {
+
+            }
+        })
+    }
+
+    function ShowEndRun()
+    {
+        document.getElementById("modalRunProduction").style.display = "flex";
+    }
+
+    function EndRun()
+    {
+        $.ajax({
+            type: "GET",
+            url: "/RunDetails/EndRun",
+            data: {
+                runsId: $("#hdnRunsId").val()
+            },
+            success: function (response) {
+                window.location.href = "/Home/Index";
+            },
+            error: function (response) {
+
+            }
+        })
+    }
+
+    function HideEndRun()
+    {
+        document.getElementById("modalRunProduction").style.display = "none";
+    }
+
+    function AddDowntime(id)
+    {
+        $('#hdnRunsDetailsId').val(id);
+        document.getElementById("divAddewAsset").style.display = "flex";
+    }
+    
+    function AddNewAsset()
+    {
+        if($('#hdnRunsDetailsId').val() == "")
+        {
+            return;
+        }
+        if($("#ddlNewAsset").val() == "0")
+        {
+            $("#idMsg").text("Validation failed: Please check your input parameters.");
+            document.getElementById("modalValidation").style.display = "flex";
+            $("#ddlNewAsset").focus();
+            return;
+        }
+        if($("#txtNewTime").val() == "")
+        {
+            $("#idMsg").text("Validation failed: Please check your input parameters.");
+            document.getElementById("modalValidation").style.display = "flex";
+            $("#txtNewTime").focus();
+            return;
+        }
+        if($("#txtNewNotes").val() == "")
+        {
+            $("#idMsg").text("Validation failed: Please check your input parameters.");
+            document.getElementById("modalValidation").style.display = "flex";
+            $("#txtNewNotes").focus();
+            return;
+        }
+
+        $.ajax({
+            type: "GET",
+            url: "/RunDetails/AddNewAssetDownTime",
+            data: {
+                runsDetailsId: $("#hdnRunsDetailsId").val(),
+                assetInvolved: $("#ddlNewAsset").val(),
+                downTime: $("#txtNewTime").val(),
+                notes: $("#txtNewNotes").val(),
+            },
+            success: function (response) {
+                $('#hdnRunsDetailsId').val("");
+            },
+            error: function (response) {
+
+            }
+        })
+    }
+</script>

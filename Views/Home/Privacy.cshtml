@@ -1,0 +1,221 @@
+﻿@model HomeViewModel
+@{
+    Model.SKURuns.AddRange(Model.SKURuns);
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="~/css/Style.css">
+    <style>
+        /* Scrollable flex container for shapes */
+        .shape-row {
+            display: flex;
+            gap: 20px; /* Space between shapes */
+            overflow-x: auto; /* Enables horizontal scrolling */
+            padding: 10px; /* Optional padding for scrollbar clearance */
+            max-width: 100vw; /* Limits width to viewport */            
+            height: auto;
+        }
+
+        /* Rectangle with triangle and centered text */
+        .shape-container-inactive {
+            position: relative;
+            width: 180px; /* Adjust width as needed */
+            height: 130px; /* Adjust height as needed */
+            background-color: white;
+            color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 16px;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        /* Rectangle with triangle and centered text */
+        .shape-container-active {
+            position: relative;
+            width: 180px; /* Adjust width as needed */
+            height: 130px; /* Adjust height as needed */
+            background-color: black;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 16px;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+            /* Triangle at the bottom center */
+            .shape-container-active::after {
+                content: "";
+                position: absolute;
+                bottom: -20px; /* Adjusts the triangle position */
+                left: 50%;
+                transform: translateX(-50%);
+                width: 0;
+                height: 0;
+                border-left: 20px solid transparent;
+                border-right: 20px solid transparent;
+                border-top: 20px solid black;
+            }
+
+       
+
+        .runs-header {
+            padding-top: 12px;
+            padding-left: 37px;
+        }
+
+        .runs {
+            display: flex;
+            flex-direction: row; /* Stack the add button and shapes row */
+            gap: 10px; /* Space between sections */
+            position: relative;
+            flex-wrap: nowrap;
+        }
+
+        .add-run-section {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            position: relative;
+        }
+
+        .add-run {
+            background-color: #4caf50;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            cursor: pointer;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 1; /* Ensure it appears above the shapes */
+        }
+
+        .scrollable-shapes {
+            overflow-x: auto; /* Enable horizontal scrolling for the shapes */
+            width: 100%; /* Use full width */
+        }
+
+        /* Container for shapes and buttons */
+        .scrollable-container {
+            display: flex;
+            align-items: center;
+            position: relative;
+            width: 100%;
+        }
+
+        /* Buttons for scrolling */
+        .scroll-btn {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 130px; /* Match the height of shapes */
+            cursor: pointer;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .left-btn {
+            margin-right: 10px;
+        }
+
+        .right-btn {
+            margin-left: 10px;
+        }
+
+        /* Scrollable row */
+        .shape-row {
+            display: flex;
+            gap: 20px; /* Space between shapes */
+            overflow: hidden; /* Hide overflow content */
+            scroll-behavior: smooth; /* Smooth scrolling */
+            flex-shrink: 0;
+            width: 100%; /* Take up full container width */
+            padding: 10px 0;
+            width: 85%;
+        }
+
+
+    </style>
+</head>
+<body>
+    <section class="runs-section">
+        <div class="runs-header">
+            <h2><b>RUNS (IN THE PAST 24H)</b></h2>
+        </div>
+        <div class="runs">
+            <!-- Add Button Section -->
+            <div class="add-run-section">
+                <div class="add-run" onclick="ClearData()">
+                    <img src="img/+.svg" alt="Add">
+                </div>
+            </div>
+
+            <!-- Scrollable Shapes with Navigation -->
+            <div class="scrollable-container">
+                <button class="scroll-btn left-btn" onclick="scrollToLeft()">&#9664;</button>
+                <div class="shape-row">
+                    @foreach (var sku in Model.SKURuns)
+                    {
+                        var id = "div-run-" + sku.ID;
+                        <div id='@id' class="shape-container-inactive" onclick="OnRunsClick('@sku.ID')">
+                            <b>@Html.Raw(sku.ToString())</b>
+                        </div>
+                    }
+                </div>
+                <button class="scroll-btn right-btn" onclick="scrollToRight()">&#9654;</button>
+            </div>
+        </div>
+
+
+    </section>
+</body>
+</html>
+<script type="text/javascript" >
+        function OnRunsClick(id) {
+        document.querySelectorAll('.shape-container-inactive, .shape-container-active')
+                .forEach(el => el.className = 'shape-container-inactive');
+
+        document.getElementById(`div-run-${id}`).className = 'shape-container-active';
+    }
+
+    function scrollToLeft() {
+        const shapeRow = document.querySelector('.shape-row');
+        shapeRow.scrollBy({ left: -200, behavior: 'smooth' }); // Adjust -200 for scroll step size
+    }
+
+    function scrollToRight() {
+        const shapeRow = document.querySelector('.shape-row');
+        shapeRow.scrollBy({ left: 200, behavior: 'smooth' }); // Adjust 200 for scroll step size
+    }
+
+    function updateButtons() {
+        const shapeRow = document.querySelector('.shape-row');
+        const leftBtn = document.querySelector('.left-btn');
+        const rightBtn = document.querySelector('.right-btn');
+
+        leftBtn.disabled = shapeRow.scrollLeft === 0;
+        rightBtn.disabled = shapeRow.scrollLeft + shapeRow.offsetWidth >= shapeRow.scrollWidth;
+    }
+
+    document.querySelector('.shape-row').addEventListener('scroll', updateButtons);
+    window.onload = updateButtons;
+
+</script>

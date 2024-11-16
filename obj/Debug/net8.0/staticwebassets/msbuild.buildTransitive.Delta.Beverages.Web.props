@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\buildMultiTargeting\Delta.Beverages.Web.props" />
+</Project>
