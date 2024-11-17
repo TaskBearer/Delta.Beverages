@@ -2,7 +2,7 @@
 @model HomeViewModel
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 @{
-    //Model.SKURuns.AddRange(Model.SKURuns);
+    // Model.SKURuns.AddRange(Model.SKURuns);
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -134,10 +134,12 @@
 
         .left-btn {
             margin-right: 10px;
+            width: 40px;
         }
 
         .right-btn {
             margin-left: 10px;
+            width: 40px;
         }
 
         /* Scrollable row */
@@ -149,43 +151,29 @@
             flex-shrink: 0;
             width: 100%; /* Take up full container width */
             padding: 10px 0;
-            width: 85%;            
+            width: 85%;
+            margin-left: 20px;
         }
     </style>
 </head>
 <body>
     <section class="header-section">
-        <div class="header-div">
+        <div class="logo-div">
             <a asp-area="" asp-controller="Home" asp-action="Index"><br />
-            <img class="logo" src="~/img/Logo.jfif" />
-            </a>
-            <img src="img/Group.svg" />
-            <select id="ddlUser" style="border:none" onchange="SetUser()">
-                @foreach (var row in Model.AllUsers)
-                {
-                    var selectedUser = HttpContextAccessor.HttpContext.Session.GetString("user") == @row.ID;
-                    <option value="@row.ID" selected='@selectedUser'>@row.Name</option>
-                }
-            </select>       
+                <img class="logo" src="~/img/Logo.jfif" />
+            </a>            
         </div>
-    </section>
-    @* <section class="runs-section">
-        <div class="runs-header">
-        <h2><b>RUNS (IN THE PAST 24H)</b></h2>
-        </div>
-        <div class="runs">
-            <div class="add-run" onclick="ClearData()"><img src="img/+.svg" /></div>
-            @foreach (var sku in Model.SKURuns)
+        <div style="background-color: grey;width: 1px;height: 100%;"></div>
+        <img class="group" src="img/Group.svg" />
+        <select id="ddlUser" class="user-dropdwon" onchange="SetUser()">
+            @foreach (var row in Model.AllUsers)
             {
-                var id = "div-run-" + sku.ID;
-                var triangleId = "div-triangle-run-" + sku.ID;
-                <div id='@id' class="run-item-inactive" onclick="OnRunsClick('@sku.ID')"><b>@Html.Raw(sku.ToString())</b>
-                    <div id='@triangleId' ></div>
-                </div>
+                var selectedUser = HttpContextAccessor.HttpContext.Session.GetString("user") == @row.ID;
+                <option value="@row.ID" selected='@selectedUser'>@row.Name</option>
             }
-             
-        </div>
-    </section> *@
+        </select>
+    </section>
+
     <section class="runs-section">
         <div class="runs-header">
             <h2><b>RUNS (IN THE PAST 24H)</b></h2>
@@ -214,25 +202,26 @@
             </div>
         </div>
     </section>
+
     <section class="run-details">
         <div class="runs-header">
             <h2><b>RUNS DETAILS</b></h2>
         </div>
         <div class="details-row">
-            <select id="ddlSKUId" name="ID" style="background-color:#ededed" onchange="SKUChanged(this);" disabled>
+            <select id="ddlSKUId" name="ID" class="input-sku-select" onchange="SKUChanged(this);" disabled>
                 <option value="0">Select SKU</option>
                 @foreach (var row in Model.AllSKUs)
                 {
                     <option value="@row.ID">@row.Name</option>
                 }
             </select>
-            <input type="text" id="txtDesc" value="" style="background-color:#ededed" disabled>
-            <select id="ddlLine" style="background-color:#ededed" disabled>
+            <input type="text" id="txtDesc" value="" class="input-sku-desc" disabled>
+            <select id="ddlLine" class="input-sku-line" disabled>
                 <option value="0">Select Line</option>
                 <option value="1">Line 1</option>
                 <option value="2">Line 2</option>
             </select>
-            <select id="ddlShift" style="background-color:#ededed" disabled>
+            <select id="ddlShift" class="input-sku-shift" disabled>
                 <option value="0">Select Shift</option>
                 <option value="1">Shift 1</option>
                 <option value="2">Shift 2</option>
@@ -240,7 +229,7 @@
         </div>
         <div class="controls">
             <div class="rectangle-inactive" onclick="StartRun()" id="divStart">
-                <div class="text-wrapper"><label id="lblStartRun">START RUN</label></div>
+                <div class="text-wrapper"><label id="lblStartRun" >START RUN</label></div>
                 <div class="rectangle-start-run"><img class="vector-run" src="~/img/Vector 7.svg" /></div>
             </div>
             <div class="rectangle-inactive" onclick="EditRun()" id="divEdit">
@@ -259,9 +248,11 @@
             </div>
         </div>        
     </section>
+
     <section class="runs-add-section">
         <button id="btnAddRun" class="add-run-main" onclick="AddRun()" disabled><b>Add Run</b></button>
     </section>
+
     <div class="modal" id="modalValidation">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal()">&times;</span>
@@ -435,7 +426,7 @@
     }
 
     function AddRun() {
-        
+
         if($("#ddlSKUId").val() == "0")
         {
             $("#idMsg").text("Please select SKU");
@@ -479,6 +470,7 @@
                     $("#btnEditRun").prop('disabled', false);
                     $("#btnEndRun").prop('disabled', false);
                 }
+                location.reload();
             },
             error: function (response) {
 

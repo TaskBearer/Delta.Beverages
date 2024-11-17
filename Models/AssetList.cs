@@ -2,6 +2,7 @@
 {
     public class AssetList
     {
+        public string DownTimeId { get; set; }
         public string RunDetailId { get; set; }
         public string AssetId { get; set; }
         public string AssetInvolved { get; set; }

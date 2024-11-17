@@ -45,11 +45,29 @@ header {
 .logo {
     width: 144px;
     height: 50px;
-    margin-right: 50px;
 }
 
-.header-div{
+.group {
+    margin-left: 34px;
+    margin-top: 22px;
+}
 
+.user-dropdwon {
+    margin-left: 34px;
+    margin-top: 22px;
+    border: none;    
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 30px;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+}
+
+.logo-div {
+    margin-left: 34px;
+    margin-right: 34px;
+    margin-top: 14px;
+    margin-bottom: 14px;
 }
 
 .user-info {
@@ -57,11 +75,8 @@ header {
 }
 
 .runs-section {
-    position: relative;
-    width: 1294px;
+    width: 100%;
     height: 228px;
-    top: 0;
-    left: 0;
     background-color: #d9d9d9;
 }
 .runs-add-section {
@@ -130,8 +145,9 @@ header {
 
 .run-details {
     background-color: white;
-    width: 1294px;
-    height: 228px;
+    width: 100%;
+    height: 276px;
+    margin-top: 25px;
 }
 
 .run-header {
@@ -141,8 +157,12 @@ header {
 }
 .header-section {
     background-color: white;
-    width: 1294px;
-    height: 90px;
+    width: 100%;
+    height: 78px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
 }
 
 .run-details h2 {
@@ -151,19 +171,87 @@ header {
 }
 
 .details-row {
-    display: flex;
+    /*display: flex;*/
     gap: 10px;
     margin-bottom: 10px;
 }
 
-    .details-row select,
-    .details-row input {
-        padding: 8px;
-        font-size: 1em;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        flex: 1;
-    }
+.input-sku-select {
+    width: 231px;
+    height: 70px;
+    background-color: #ededed;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    flex: 1;
+    margin-left: 34px;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 20.42px;
+    text-align: left;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+}
+
+.input-sku-desc {
+    width: 650px;
+    height: 70px;
+    background-color: #ededed;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    flex: 1;
+    margin-left: 21px;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 20.42px;
+    text-align: left;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+}
+
+.input-sku-line {
+    width: 138px;
+    height: 70px;
+    background-color: #ededed;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    flex: 1;
+    margin-left: 21px;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 20.42px;
+    text-align: left;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+}
+
+.input-sku-shift {
+    width: 138px;
+    height: 70px;
+    background-color: #ededed;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    flex: 1;
+    margin-left: 21px;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 20.42px;
+    text-align: left;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
+}
+
+/*.details-row select,
+.details-row input {
+    padding: 8px;
+    font-size: 1em;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    flex: 1;
+}*/
 
 .controls {
     text-align: center;
@@ -257,8 +345,14 @@ header {
     font-size: 20px;
     letter-spacing: 0;
     line-height: normal;
-    margin-top: 20px;
+    margin-top: 7px;
     margin-left: 5px;
+    text-align: left;
+    /* vertical-align: middle; */
+    display: flex;
+    justify-content: flex-start;
+    align-content: center;
+    flex-wrap: wrap;
 }
 .rectangle-start-run {
     width: 52px;
@@ -423,7 +517,7 @@ header {
     border-radius: 4px;
 }
 .run-details-input-notes {
-    width: 567px;
+    width: 438px;
     height: 70px;
     border: none;
     border-radius: 4px;

@@ -30,6 +30,21 @@ namespace Delta.Beverages.Web.Controllers
                 {
                     con.Open();
 
+                    DataTable dtAllUsers = new DataTable();
+                    SqlDataAdapter adAllUsers = new SqlDataAdapter("SELECT ID, UserName FROM UserRoles WHERE [Function] = 'Production Reporting'", con);
+                    adAllUsers.Fill(dtAllUsers);
+                    List<User> AllUsers = new List<User>();
+                    foreach (DataRow row in dtAllUsers.Rows)
+                    {
+                        AllUsers.Add(new User
+                        {
+                            ID = row["ID"].ToString(),
+                            Name = row["UserName"].ToString()
+                        });
+                    }
+
+                    model.AllUsers = AllUsers;
+
                     // Retrieve data for GridView1
                     DataTable dt = new DataTable();
                     SqlDataAdapter adapt1 = new SqlDataAdapter("SELECT R.ID AS ID, 'Line ' + CONVERT(VARCHAR, R.SelectedLine) + ' - SKU ' + CONVERT(VARCHAR, S.SKU) " +
@@ -54,7 +69,7 @@ namespace Delta.Beverages.Web.Controllers
                     var runsTimeWindowDetails = new List<RunsTimeWindowDetails>();
                     if (dt != null && dt.Rows.Count > 0)
                     {
-                        
+
                         foreach (DataRow row in dt.Rows)
                         {
                             runsTimeWindowDetails.Add(new RunsTimeWindowDetails
@@ -65,8 +80,8 @@ namespace Delta.Beverages.Web.Controllers
                                 Count = row["Count"].ToString(),
                             });
 
-                        } 
-                            
+                        }
+
                         model = GetData(dt.Rows[0]["RunsID"].ToString(), model);
                     }
                     model.RunsTimeWindowDetails = runsTimeWindowDetails;
@@ -144,7 +159,7 @@ namespace Delta.Beverages.Web.Controllers
             return model;
         }
 
-        private HomeViewModel GetData(string runID,HomeViewModel model)
+        private HomeViewModel GetData(string runID, HomeViewModel model)
         {
             DataTable table = new DataTable();
             DataTable tableAsset = new DataTable();
@@ -163,17 +178,17 @@ namespace Delta.Beverages.Web.Controllers
             }
             var assetList = new List<AssetList> { };
 
-            foreach (DataRow row in table.Rows)
-            {
-                assetList.Add(new AssetList
-                {
-                    RunDetailId = row["RunDetailId"].ToString(),
-                    AssetId = row["AssetId"].ToString(),
-                    AssetInvolved = row["AssetInvolved"].ToString(),
-                    DownTime = row["DownTime"].ToString(),
-                    Notes = row["Notes"].ToString(),
-                });
-            }
+            //foreach (DataRow row in table.Rows)
+            //{
+            //    assetList.Add(new AssetList
+            //    {
+            //        RunDetailId = row["RunDetailId"].ToString(),
+            //        AssetId = row["AssetId"].ToString(),
+            //        AssetInvolved = row["AssetInvolved"].ToString(),
+            //        DownTime = row["DownTime"].ToString(),
+            //        Notes = row["Notes"].ToString(),
+            //    });
+            //}
             model.AssetList = assetList;
 
             var allAssets = new List<Assets> { };
@@ -185,8 +200,8 @@ namespace Delta.Beverages.Web.Controllers
                     using (SqlDataAdapter ad = new SqlDataAdapter(cmd))
                     {
                         ad.Fill(tableAsset);
-                        
-                        foreach(DataRow row in tableAsset.Rows)
+
+                        foreach (DataRow row in tableAsset.Rows)
                         {
                             allAssets.Add(new Assets
                             {
@@ -246,7 +261,7 @@ namespace Delta.Beverages.Web.Controllers
 
                 using (SqlCommand cmd = new SqlCommand(equery, con))
                 {
-                    cmd.ExecuteNonQuery();                    
+                    cmd.ExecuteNonQuery();
                 }
 
                 con.Close();
@@ -287,6 +302,71 @@ namespace Delta.Beverages.Web.Controllers
                     cmd.Parameters.AddWithValue("@AssetInvolved", assetInvolved);
                     cmd.Parameters.AddWithValue("@Notes", notes);
                     cmd.Parameters.AddWithValue("@ChangeTimeStamp", DateTime.Now);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public IActionResult GetDownTimeByRunsDetailsId(string runDetailsID)
+        {
+            DataTable table = new DataTable();
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                string sql = $"SELECT D.ID as [DownTimeID], [RunDetailId], [Downtime], A.AssetNumberID as AssetId, A.AssetName as AssetInvolved, [Notes], [ChangeTimeStamp] " +
+                    $"FROM DownTime AS D INNER JOIN AssetList AS A ON D.AssetInvolved = A.AssetNumberID WHERE RunDetailId = {runDetailsID}";
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    using (SqlDataAdapter ad = new SqlDataAdapter(cmd))
+                    {
+                        ad.Fill(table);
+                    }
+                }
+                conn.Close();
+            }
+            var assetList = new List<AssetList> { };
+
+            foreach (DataRow row in table.Rows)
+            {
+                assetList.Add(new AssetList
+                {
+                    DownTimeId = row["DownTimeId"].ToString(),
+                    RunDetailId = row["RunDetailId"].ToString(),
+                    AssetId = row["AssetId"].ToString(),
+                    AssetInvolved = row["AssetInvolved"].ToString(),
+                    DownTime = row["DownTime"].ToString(),
+                    Notes = row["Notes"].ToString(),
+                });
+            }
+
+            return new JsonResult(assetList);
+        }
+        public void UpdateDownTime(string downTimeID, string runId, string asset, string downTime, string notes)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                conn.Open();
+                string equery = "UPDATE DownTime SET RunDetailId=@RunId,AssetInvolved= @Asset, DownTime= @DownTime,Notes= @Notes where ID=@stor_id";
+                using (SqlCommand cmd = new SqlCommand(equery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@RunId", runId);
+                    cmd.Parameters.AddWithValue("@Asset", asset);
+                    cmd.Parameters.AddWithValue("@DownTime", downTime);
+                    cmd.Parameters.AddWithValue("@Notes", notes);
+                    cmd.Parameters.AddWithValue("@stor_id", downTimeID);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public void DeleteDownTime(string downTimeID)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                conn.Open();
+                string equery = "DELETE DownTime where ID=@stor_id";
+                using (SqlCommand cmd = new SqlCommand(equery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@stor_id", downTimeID);
                     cmd.ExecuteNonQuery();
                 }
             }

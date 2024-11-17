@@ -35,27 +35,57 @@
         flex-direction: column; /* flex-wrap: nowrap; */
         justify-content: center;
         }
+
+        .active-run-div
+        {
+            border-style: solid;
+            position: relative;
+            display: flex;
+            gap: 10px;
+            margin: 10px;
+            float: inline-start;
+            border-color: cornflowerblue;
+        }
+
+        .inactive-run-div {
+            border-style: solid;
+            position: relative;
+            display: flex;
+            gap: 10px;
+            margin: 10px;
+            float: inline-start;
+            border-color: #ededed;
+        }
+        .update-delete{
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            height: 70px;
+        }
     </style>
 </head>
 <body>
     <input type="hidden" id="hdnRunsId" value='@Model.RunsTimeWindowDetails.FirstOrDefault().RunsID' />
     <input type="hidden" id="hdnRunsDetailsId" value="" />
+
     <section class="header-section">
-        <div class="header-div">
+        <div class="logo-div">
             <a asp-area="" asp-controller="Home" asp-action="Index">
                 <br />
                 <img class="logo" src="~/img/Logo.jfif" />
             </a>
-            <img src="~/img/Group.svg" />
-            <select id="ddlUser" style="border:none" onchange="SetUser()">
-                @foreach (var row in Model.AllUsers)
-                {
-                    var selectedUser = HttpContextAccessor.HttpContext.Session.GetString("user") == @row.ID;
-                    <option value="@row.ID" selected='@selectedUser'>@row.Name</option>
-                }
-            </select>
         </div>
+        <div style="background-color: grey;width: 1px;height: 100%;"></div>
+        <img class="group" src="~/img/Group.svg" />
+        <select id="ddlUser" class="user-dropdwon" onchange="SetUser()">
+            @foreach (var row in Model.AllUsers)
+            {
+                var selectedUser = HttpContextAccessor.HttpContext.Session.GetString("user") == @row.ID;
+                <option value="@row.ID" selected='@selectedUser'>@row.Name</option>
+            }
+        </select>
     </section>
+
     <section class="run-details-wrapper">
         <section class="left-pane">
             <div class="line-description"><b>@Model.RunDetails.Description</b></div>
@@ -64,6 +94,8 @@
                 @foreach (var row in Model.RunsTimeWindowDetails)
                 {
                     var id = "txtCount_" + row.ID;
+                    var divid = "div_" + row.ID;
+                    <div class="inactive-run-div" id='@divid'>
                     <div class="run-details-row">
                         <input class="run-details-input" type="text" id="txtTime" value='@row.TimeWindowTimeStamp'>
 
@@ -80,6 +112,7 @@
                             <div class="add-downtime">
                                 <img src="~/img/+.svg" />
                             </div>Add Downtime</div>
+                    </div>
                     </div>
                 }
             </div>
@@ -99,45 +132,8 @@
             <div class="runs-header">
                 <div class="line-description"><b>Asset Impacted by downtime</b></div>
             </div>
-            <div class="div-scroll">
-                @foreach(var downTime in Model.AssetList)
-                {
-                    <div class="asset-container">
-                        <div class="run-details-row">
-
-                        <select id="ddlAsset" class="run-details-input-asset">
-                            <option value="0">Select Asset</option>
-                            @foreach (var asset in Model.AllAssets)
-                            {
-                                var selectedAsset = asset.AssetNumberID == downTime.AssetId;
-                                <option value='@asset.AssetNumberID' selected='@selectedAsset'>@asset.AssetName</option>
-                            }
-                        </select>
-                        <input class="run-details-input-time" type="text" id="txtTime" value='@downTime.DownTime' placeholder="time(min)">
-                    
-                        </div>
-                        <div class="run-details-row">
-                            <input class="run-details-input-notes" type="text" id="txtNotes" value='@downTime.Notes' placeholder="Notes">
-                        </div>
-                    </div>
-                }
-                <div class="asset-container" style="display:none" id="divAddewAsset">
-                    <div class="run-details-row">
-
-                        <select id="ddlNewAsset" class="run-details-input-asset">
-                            <option value="0">Select Asset</option>
-                            @foreach (var asset in Model.AllAssets)
-                            {
-                                <option value='@asset.AssetNumberID'>@asset.AssetName</option>
-                            }
-                        </select>
-                        <input class="run-details-input-time" type="text" id="txtNewTime" value="" placeholder="time(min)">
-
-                    </div>
-                    <div class="run-details-row">
-                        <input class="run-details-input-notes" type="text" id="txtNewNotes" value="" placeholder="Notes">
-                    </div>
-                </div>
+            <div class="div-scroll" id="div-asset-list">
+                
             </div>
             
             <div class="run-details-row">
@@ -150,6 +146,7 @@
             </div>
         </section>
     </section>
+
     <div class="modal" id="modalValidation">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal()">&times;</span>
@@ -166,6 +163,47 @@
                 <button class="open-modal-btn-ok" onclick="EndRun()">Ok</button>
                 <button class="open-modal-btn-cancel" onclick="HideEndRun()">Cancel</button>
             </div>
+        </div>
+    </div>
+
+    <div class="asset-container" style="display:none" id="divAsset">
+        <div class="run-details-row">
+
+            <select id="ddlNewAsset" class="run-details-input-asset">
+                <option value="0">Select Asset</option>
+                @foreach (var asset in Model.AllAssets)
+                {
+                    <option value='@asset.AssetNumberID'>@asset.AssetName</option>
+                }
+            </select>
+            <input class="run-details-input-time" type="text" id="txtNewTime" value="" placeholder="time(min)">
+
+        </div>
+        <div class="run-details-row">
+            <input class="run-details-input-notes" type="text" id="txtNewNotes" value="" placeholder="Notes">
+            <div class="update-delete">
+                <button class="open-modal-btn" id="btnUpdate" style="height: 32px; text-align: center; display: flex; justify-content: center; align-items: center;">Update</button>
+                <button class="open-modal-btn" id="btnDelete" style="height: 32px; text-align: center; display: flex; justify-content: center; align-items: center;">Delete</button>
+            </div>
+            <input type="hidden" id="hdnDownTimeId" />
+        </div>
+    </div>
+    <div class="asset-container" style="display:none" id="divAddewAsset">
+        <div class="run-details-row">
+
+            <select id="ddlNewAsset" class="run-details-input-asset">
+                <option value="0">Select Asset</option>
+                @foreach (var asset in Model.AllAssets)
+                {
+                    <option value='@asset.AssetNumberID'>@asset.AssetName</option>
+                }
+            </select>
+            <input class="run-details-input-time" type="text" id="txtNewTime" value="" placeholder="time(min)">
+
+        </div>
+        <div class="run-details-row">
+            <input class="run-details-input-notes" style="width:567px" type="text" id="txtNewNotes" value="" placeholder="Notes">
+            <input type="hidden" id="hdnDownTimeId" />
         </div>
     </div>
 </body>
@@ -255,12 +293,78 @@
 
     function AddDowntime(id)
     {
+        debugger;
+        if($('#hdnRunsDetailsId').val() == id)
+        {
+            return;
+        }
+        else
+        {
+            $("#div-asset-list").empty();
+        }
         $('#hdnRunsDetailsId').val(id);
-        document.getElementById("divAddewAsset").style.display = "flex";
+
+        document.querySelectorAll('.active-run-div, .inactive-run-div')
+                .forEach(el => el.className = 'inactive-run-div');
+
+        document.getElementById(`div_${id}`).className = 'active-run-div';
+
+        $.ajax({
+            type: "GET",
+            url: "/RunDetails/GetDownTimeByRunsDetailsId",
+            data: {
+                runDetailsID: id
+            },
+            success: function (response) {
+                debugger;
+                // $('#hdnRunsDetailsId').val("");
+                if(response != null && response.length > 0)
+                {
+                    for (var i = 0; i < response.length; ++i) 
+                    {
+                        var clonedContent = $("#divAsset").clone();
+                        clonedContent.attr("id", `divAddewAsset_${response[i].downTimeId}`);
+                        clonedContent.css("display", "flex");
+
+                        clonedContent.find("#hdnDownTimeId").val(response[i].downTimeId);
+                        clonedContent.find("#hdnDownTimeId").attr("id", `hdnDownTimeId_${response[i].downTimeId}`);
+
+                        clonedContent.find("#ddlNewAsset").val(response[i].assetId);
+                        clonedContent.find("#ddlNewAsset").attr("id", `ddlNewAsset_${response[i].downTimeId}`);
+                    
+                        clonedContent.find("#txtNewTime").val(response[i].downTime);
+                        clonedContent.find("#txtNewTime").attr("id", `txtNewTime_${response[i].downTimeId}`);
+
+                        clonedContent.find("#txtNewNotes").val(response[i].notes);
+                        clonedContent.find("#txtNewNotes").attr("id", `txtNewNotes_${response[i].downTimeId}`);
+                        var downTimeId = response[i].downTimeId                      
+
+                        clonedContent.find("#btnUpdate").attr(
+                            "onclick",
+                            "UpdateDownTime(" + downTimeId + ")"
+                        );
+
+                        clonedContent.find("#btnDelete").attr(
+                            "onclick",
+                            "DeleteDownTime(" + downTimeId + ")"
+                        );
+
+                        $("#div-asset-list").append(clonedContent);
+                    }
+                }
+                var newClonedContent = $("#divAddewAsset").clone();
+                newClonedContent.css("display", "flex");
+                $("#div-asset-list").append(newClonedContent);
+            },
+            error: function (response) {
+
+            }
+        })
     }
     
     function AddNewAsset()
     {
+        debugger;
         if($('#hdnRunsDetailsId').val() == "")
         {
             return;
@@ -297,7 +401,74 @@
                 notes: $("#txtNewNotes").val(),
             },
             success: function (response) {
-                $('#hdnRunsDetailsId').val("");
+                var id = $('#hdnRunsDetailsId').val();
+                $('#hdnRunsDetailsId').val("");;
+                AddDowntime(id);
+            },
+            error: function (response) {
+
+            }
+        })
+    }
+
+    function UpdateDownTime(downTimeId)
+    {
+        var ddlAsset = "#ddlNewAsset_" + downTimeId;
+        var time = "#txtNewTime_" + downTimeId;
+        var notes = "#txtNewNotes_" + downTimeId;
+
+        if($(ddlAsset).val() == "0")
+        {
+            $("#idMsg").text("Validation failed: Please check your input parameters.");
+            document.getElementById("modalValidation").style.display = "flex";
+            $("#ddlNewAsset").focus();
+            return;
+        }
+        if($(time).val() == "")
+        {
+            $("#idMsg").text("Validation failed: Please check your input parameters.");
+            document.getElementById("modalValidation").style.display = "flex";
+            $("#txtNewTime").focus();
+            return;
+        }
+        if($(notes).val() == "")
+        {
+            $("#idMsg").text("Validation failed: Please check your input parameters.");
+            document.getElementById("modalValidation").style.display = "flex";
+            $("#txtNewNotes").focus();
+            return;
+        }
+
+        $.ajax({
+            type: "GET",
+            url: "/RunDetails/UpdateDownTime",
+            data: {
+                downTimeID: downTimeId,
+                runId: $('#hdnRunsDetailsId').val(),
+                asset: $(ddlAsset).val(),
+                downTime: $(time).val(),
+                notes: $(notes).val(),
+            },
+            success: function (response) {
+               
+            },
+            error: function (response) {
+
+            }
+        })
+    }
+
+    function DeleteDownTime(downTimeId){
+        $.ajax({
+            type: "GET",
+            url: "/RunDetails/DeleteDownTime",
+            data: {
+                downTimeID: downTimeId
+            },
+            success: function (response) {
+                debugger;
+                var deletedDiv = "#divAddewAsset_" + downTimeId;
+                $("#div-asset-list").find(deletedDiv).remove();
             },
             error: function (response) {
 
