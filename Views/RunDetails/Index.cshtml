@@ -109,9 +109,20 @@
                         }
                         <div class="run-details-input-submit" onclick="SubmitCount('@row.ID')">Submit</div>
                         <div class="run-details-input-add" onclick="AddDowntime('@row.ID')">
-                            <div class="add-downtime">
-                                <img src="~/img/+.svg" />
-                            </div>Add Downtime</div>
+                                <div style="display: flex;">
+                                <div class="add-downtime">
+                                    <img src="~/img/+.svg" />
+                                </div>
+                                    <div style="display: flex;align-content: flex-end;flex-direction: column;justify-content: flex-end;">
+                                        Add
+                                    </div>
+                            
+                            </div>
+                                <div style="margin: -3px; ">
+                                Downtime
+                                to Submit
+                            </div>
+                        </div>
                     </div>
                     </div>
                 }

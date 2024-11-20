@@ -488,6 +488,9 @@ header {
     border-radius: 4px;
     cursor: pointer;
     padding: 10px;
+    margin-left: 5px;
+    margin-top: 5px;
+    margin-right: 5px;
 }
 .add-Asset {
     background-color: #4caf50;

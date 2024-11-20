@@ -51,8 +51,8 @@ namespace Delta.Beverages.Web.Controllers
 
                     DataTable dtSKURuns = new DataTable();
 
-                    SqlDataAdapter adSUKRuns = new SqlDataAdapter("SELECT R.ID AS ID, R.SelectedLine, S.SKU ,R.ChangeTimeStamp FROM Runs AS R INNER JOIN SKUs AS S ON R.SKUID = S.ID"/* +
-                        " WHERE R.ChangeTimeStamp > DATEADD(hour, -24, GETDATE())"*/, con);
+                    SqlDataAdapter adSUKRuns = new SqlDataAdapter("SELECT R.ID AS ID, R.SelectedLine, S.SKU ,R.ChangeTimeStamp FROM Runs AS R INNER JOIN SKUs AS S ON R.SKUID = S.ID" +
+                        " WHERE R.ChangeTimeStamp > DATEADD(hour, -24, GETDATE())", con);
                     adSUKRuns.Fill(dtSKURuns);
 
                     List<SKURun> SKURuns = new List<SKURun>();
@@ -144,6 +144,29 @@ namespace Delta.Beverages.Web.Controllers
             }
         }
 
+        public IActionResult GetSKURunDetails(string selectedLine)
+        {
+            int selectedSkuId = Convert.ToInt32(selectedLine);
+            using (SqlConnection con = new SqlConnection(_connectionString))
+            {
+                con.Open();
+
+                DataSet dtSKUs = new DataSet();
+                SqlDataAdapter adaptSKUs = new SqlDataAdapter($" SELECT R.ID AS ID, R.SelectedLine, S.SKU ,R.ChangeTimeStamp FROM Runs AS R INNER JOIN SKUs AS S ON R.SKUID = S.ID where R.ID =  {selectedLine}", con);
+                adaptSKUs.Fill(dtSKUs);
+
+                SKURun runDetails = new SKURun
+                {
+                    ID = dtSKUs.Tables[0].Rows[0]["ID"].ToString(),
+                    SelectedLine = dtSKUs.Tables[0].Rows[0]["SelectedLine"].ToString(),
+                    SKU = dtSKUs.Tables[0].Rows[0]["SKU"].ToString(),
+                    ChangeTimeStamp = DateTime.Parse(dtSKUs.Tables[0].Rows[0]["ChangeTimeStamp"].ToString()),
+                };
+
+                return new JsonResult(runDetails.ToString());
+            }
+        }
+
         public IActionResult AddRun(string SKUID, string SelectedLine, string SelectedShift, string SelectedUserID)
         {
             string query = "INSERT INTO [Runs] ([SKUID], [SelectedLine], [SelectedShift], [SelectedUserID], [ChangeTimeStamp], [CreateTimeStamp], [IsActive]) " +
@@ -218,7 +241,7 @@ namespace Delta.Beverages.Web.Controllers
             {
                 Console.WriteLine(ex.Message.ToString());
             }
-            return RedirectToAction("Index");
+            return GetSKURunDetails(selectedRunID);
         }
         public IActionResult EndProduction()
         {

@@ -193,8 +193,9 @@
                     @foreach (var sku in Model.SKURuns)
                     {
                         var id = "div-run-" + sku.ID;
+                        var lblId = "lbl-run-" + sku.ID;
                         <div id='@id' class="shape-container-inactive" onclick="OnRunsClick('@sku.ID')">
-                            <b>@Html.Raw(sku.ToString())</b>
+                            <b><label id='@lblId'>@Html.Raw(sku.ToString()) </label></b>
                         </div>
                     }
                 </div>
@@ -497,6 +498,7 @@
             type: "GET",
             url: "/Home/EndProduction",
             success: function (response) {
+                HidEndProduction();
             },
             error: function (response) {
 
@@ -538,8 +540,11 @@
                 SelectedLine: $("#ddlLine").val(),
                 SelectedShift: $("#ddlShift").val(),
                 SelectedUserID: $("#ddlUser").val()
-            },
+            },            
             success: function (response) {
+                debugger;
+                var id = '#lbl-run-'+$("#hdnRunId").val();
+                $(id).html(response);
                 $("#idMsg").text("Data saved!!");
                 document.getElementById("modalValidation").style.display = "flex";
             },
