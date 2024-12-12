@@ -194,7 +194,22 @@ namespace Delta.Beverages.Web.Controllers
             var allAssets = new List<Assets> { };
             using (SqlConnection con = new SqlConnection(_connectionString))
             {
-                string sql = $"SELECT * FROM AssetList";
+                string sql = $@"
+                            SELECT al.AssetName,
+                                   al.AssetNumberID
+                            FROM Runs
+                            JOIN SKUs 
+                                ON SKUs.ID = Runs.SKUID
+                            JOIN ProductionFormat pf 
+                                ON pf.productionFormat = SKUs.ProductFormat
+                            JOIN AssetByProductionFormat abpf 
+                                ON abpf.ProductionFormatID = pf.ID
+                            JOIN AssetList al 
+                                ON al.AssetNumberID = abpf.AssetNumberID
+                            WHERE Runs.ID = {runID}
+                            ORDER BY abpf.Sequence;
+                        ";
+
                 using (SqlCommand cmd = new SqlCommand(sql, con))
                 {
                     using (SqlDataAdapter ad = new SqlDataAdapter(cmd))
