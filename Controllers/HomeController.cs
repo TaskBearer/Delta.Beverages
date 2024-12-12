@@ -316,32 +316,75 @@ namespace Delta.Beverages.Web.Controllers
                 {
                     con.Open();
 
-                    string equery = $"UPDATE  [dbo].[Runs] SET IsActive = 1 WHERE ID =  {selectedRunID}";
-                    using (SqlCommand cmd = new SqlCommand(equery, con))
+                    string equery;
+                    bool isRunActive = false;
+                    isRunActive = getIsRunActive(selectedRunID, con);
+                    if (isRunActive)
                     {
-                        cmd.ExecuteNonQuery();
+                        equery = $"UPDATE  [dbo].[Runs] SET IsActive = 1 WHERE ID =  {selectedRunID}";
+                        using (SqlCommand cmd = new SqlCommand(equery, con))
+                        {
+                            cmd.ExecuteNonQuery();
+                        }
+
+
+                        ////  TODO: this code, move to Start Run
+                        //DataSet dtActiveRuns = new DataSet();
+                        //SqlDataAdapter adaptActiveRuns = new SqlDataAdapter("SELECT ID as ID FROM [OperatorDB].[dbo].[Runs] where id =selrcted", con);
+                        //adaptActiveRuns.Fill(dtActiveRuns);
+
+                        //foreach (DataRow row in dtActiveRuns.Tables[0].Rows)
+                        //{
+                        // Access each column using the column name or index
+                        int runID = Convert.ToInt32(selectedRunID); // Assuming RunID is an integer
+                        int hour = DateTime.Now.Hour;
+                        BackgroundWorker.insertRunDetails(runID, hour, con);
+                        //    break;
+                        //}
                     }
-
-
-                    ////  TODO: this code, move to Start Run
-                    //DataSet dtActiveRuns = new DataSet();
-                    //SqlDataAdapter adaptActiveRuns = new SqlDataAdapter("SELECT ID as ID FROM [OperatorDB].[dbo].[Runs] where id =selrcted", con);
-                    //adaptActiveRuns.Fill(dtActiveRuns);
-
-                    //foreach (DataRow row in dtActiveRuns.Tables[0].Rows)
-                    //{
-                    // Access each column using the column name or index
-                    int runID = Convert.ToInt32(selectedRunID); // Assuming RunID is an integer
-                    int hour = DateTime.Now.Hour;
-                    BackgroundWorker.insertRunDetails(runID, hour, con);
-                    //    break;
-                    //}
                     con.Close();
+
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message.ToString());
+            }
+
+            static bool getIsRunActive(string selectedRunID, SqlConnection con)
+            {
+                // Validate the input
+                if (string.IsNullOrWhiteSpace(selectedRunID))
+                    throw new ArgumentException("selectedRunID cannot be null or empty.", nameof(selectedRunID));
+
+                string endRunTimestamp = string.Empty;
+                string query = "SELECT EndRunTimeStamp FROM [dbo].[Runs] WHERE ID = @RunID";
+
+                try
+                {
+                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    {
+                        // Use parameterized query to prevent SQL injection
+                        cmd.Parameters.AddWithValue("@RunID", selectedRunID);
+                        3333988
+                        // Open the connection if not already open
+                        if (con.State != ConnectionState.Open)
+                            con.Open();
+
+                        object result = cmd.ExecuteScalar(); // Efficient for single value retrieval
+                        if (result != null && result != DBNull.Value)
+                        {
+                            endRunTimestamp = result.ToString();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Log the exception (or handle it as needed)
+                    throw new ApplicationException("Error retrieving EndRunTimestamp", ex);
+                }
+
+                return string.IsNullOrEmpty(endRunTimestamp);
             }
         }
     }
