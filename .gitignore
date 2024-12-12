@@ -3,4 +3,9 @@
 ################################################################################
 
 /.config
-/bin/Debug/net8.0/Delta.Beverages.Web.dll
+/bin
+/OBJ
+
+/bin/Debug/net8.0/Delta.Beverages.Web.exe
+/bin/Debug/net8.0/Delta.Beverages.Web.pdb
+/bin/Debug/net8.0/Delta.Beverages.Web.staticwebassets.runtime.json
