@@ -321,7 +321,7 @@ namespace Delta.Beverages.Web.Controllers
                     isRunActive = getIsRunActive(selectedRunID, con);
                     if (isRunActive)
                     {
-                        equery = $"UPDATE  [dbo].[Runs] SET IsActive = 1 WHERE ID =  {selectedRunID}";
+                        equery = $"UPDATE  [dbo].[Runs] SET IsActive = 1 WHERE EndRunTimeStamp IS NULL AND ID =  {selectedRunID}";
                         using (SqlCommand cmd = new SqlCommand(equery, con))
                         {
                             cmd.ExecuteNonQuery();

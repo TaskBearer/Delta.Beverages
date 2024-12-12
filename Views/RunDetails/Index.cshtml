@@ -7,17 +7,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="~/css/Style.css">
+    <link rel="stylesheet" href="~/css/site.css">
     <style>
-        .div-scroll{
-        height: 460px;
-        overflow-y: auto;
-        width: fit-content;
-        }
+        
 
         .asset-container {
         background-color: #ededed;
-        width: 588px;
+        /* width: 588px; */
         height: 184px;
         margin: 20px;
         border: none;
@@ -55,6 +51,7 @@
             margin: 10px;
             float: inline-start;
             border-color: #ededed;
+            width:95%;
         }
         .update-delete{
             display: flex;
@@ -87,75 +84,77 @@
     </section>
 
     <section class="run-details-wrapper">
-        <section class="left-pane">
-            <div class="line-description"><b>@Model.RunDetails.Description</b></div>
-            <div class="run-count"><b>Run count</b></div>
-            <div class="div-scroll">
-                @foreach (var row in Model.RunsTimeWindowDetails)
-                {
-                    var id = "txtCount_" + row.ID;
-                    var divid = "div_" + row.ID;
-                    <div class="inactive-run-div" id='@divid'>
-                    <div class="run-details-row">
-                        <input class="run-details-input" type="text" id="txtTime" value='@row.TimeWindowTimeStamp'>
+        <div class="pane-container">
+            <section class="left-pane">
+                <div class="line-description"><b>@Model.RunDetails.Description</b></div>
+                <div class="run-count"><b>Run count</b></div>
+                <div class="div-scroll">
+                    @foreach (var row in Model.RunsTimeWindowDetails)
+                    {
+                        var id = "txtCount_" + row.ID;
+                        var divid = "div_" + row.ID;
+                        <div class="inactive-run-div" id='@divid'>
+                            <div class="run-details-row">
+                                <input class="run-details-input" type="text" id="txtTime" value='@row.TimeWindowTimeStamp'>
 
-                        @if (row.Count == "0")
-                        {
-                            <input class="run-details-input-count" type="text" id='@id' value='@row.Count' >
-                        }
-                        else
-                        {
-                            <input class="run-details-input-count" style="background-color: white;" type="text" id='@id' value='@row.Count'>
-                        }
-                        <div class="run-details-input-submit" onclick="SubmitCount('@row.ID')">Submit</div>
-                        <div class="run-details-input-add" onclick="AddDowntime('@row.ID')">
-                                <div style="display: flex;">
-                                <div class="add-downtime">
-                                    <img src="~/img/+.svg" />
-                                </div>
-                                    <div style="display: flex;align-content: flex-end;flex-direction: column;justify-content: flex-end;">
-                                        Add
+                                @if (row.Count == "0")
+                                {
+                                    <input class="run-details-input-count" type="text" id='@id' value='@row.Count'>
+                                }
+                                else
+                                {
+                                    <input class="run-details-input-count" style="background-color: white;" type="text" id='@id' value='@row.Count'>
+                                }
+                                <div class="run-details-input-submit" onclick="SubmitCount('@row.ID')">Submit</div>
+                                <div class="run-details-input-add" onclick="AddDowntime('@row.ID')">
+                                    <div style="display: flex;">
+                                        <div class="add-downtime">
+                                            <img src="~/img/+.svg" />
+                                        </div>
+                                        <div style="display: flex;align-content: flex-end;flex-direction: column;justify-content: flex-end;">
+                                            Add
+                                        </div>
+
                                     </div>
-                            
-                            </div>
-                                <div style="margin: -3px; ">
-                                Downtime
-                                to Submit
+                                    <div style="margin: -3px; ">
+                                        Downtime
+                                        to Submit
+                                    </div>
+                                </div>
                             </div>
                         </div>
+                    }
+                </div>
+                <div class="run-details-row">
+                    <div class="run-details-end-run" onclick="ShowEndRun()">
+                        <div class="text-wrapper">END RUN</div>
+                        <div class="rectangle-end-production">
+                            <div class="rectangle-end-prod"></div>
+                        </div>
                     </div>
-                    </div>
-                }
-            </div>
-            <div class="run-details-row">
-                <div class="run-details-end-run" onclick="ShowEndRun()">
-                    <div class="text-wrapper">END RUN</div>
-                    <div class="rectangle-end-production">
-                        <div class="rectangle-end-prod"></div>
+                    <div class="total-run" style="background-color:inherit;">
+                        <b>TOTAL RUN COUNT : <label id="lblTotalRun">@Model?.RunsTimeWindowDetails?.Sum(s => Convert.ToInt16(s.Count)).ToString()</label></b>
                     </div>
                 </div>
-                <div class="total-run" style="background-color:inherit;">
-                    <b>TOTAL RUN COUNT : <label id="lblTotalRun">@Model?.RunsTimeWindowDetails?.Sum(s=> Convert.ToInt16(s.Count)).ToString()</label></b>
+            </section>
+            <section class="right-pane">
+                <div class="runs-header">
+                    <div class="line-description"><b>Asset Impacted by downtime</b></div>
                 </div>
-            </div>
-        </section>
-        <section>
-            <div class="runs-header">
-                <div class="line-description"><b>Asset Impacted by downtime</b></div>
-            </div>
-            <div class="div-scroll" id="div-asset-list">
-                
-            </div>
-            
-            <div class="run-details-row">
-                <div class="run-details-end-run" onclick="AddNewAsset()">
-                    <div class="text-wrapper">ADD ASSET</div>
-                    <div class="add-Asset">
-                        <img src="~/img/+.svg" />
+                <div class="div-scroll" id="div-asset-list">
+                </div>
+
+                <div class="run-details-row">
+                    <div class="run-details-end-run" onclick="AddNewAsset()">
+                        <div class="text-wrapper">ADD ASSET</div>
+                        <div class="add-Asset">
+                            <img src="~/img/+.svg" />
+                        </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
+
+        </div>
     </section>
 
     <div class="modal" id="modalValidation">
