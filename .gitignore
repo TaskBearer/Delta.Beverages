@@ -6,6 +6,24 @@
 /bin
 /OBJ
 
+/.vs
+/obj
 /bin/Debug/net8.0/Delta.Beverages.Web.exe
 /bin/Debug/net8.0/Delta.Beverages.Web.pdb
 /bin/Debug/net8.0/Delta.Beverages.Web.staticwebassets.runtime.json
+*.wsuo
+/bin/Debug/net8.0/appsettings.json
+/obj/Debug/net8.0/ref/Delta.Beverages.Web.dll
+/obj/Debug/net8.0/refint/Delta.Beverages.Web.dll
+/obj/Debug/net8.0/staticwebassets/msbuild.build.Delta.Beverages.Web.props
+/appsettings.json
+/Delta.Beverages.Web.csproj.user
+/.vs/Delta.Beverages.Web/DesignTimeBuild/.dtbcache.v2
+/Properties/PublishProfiles/FolderProfile.pubxml
+/Properties/PublishProfiles/FolderProfile.pubxml.user
+/Properties/PublishProfiles/FolderProfile1.pubxml
+/Properties/PublishProfiles/FolderProfile1.pubxml.user
+/Properties/PublishProfiles/FolderProfile2.pubxml
+/Properties/PublishProfiles/FolderProfile2.pubxml.user
+/Properties/PublishProfiles/FolderProfile3.pubxml
+/Properties/PublishProfiles/FolderProfile3.pubxml.user

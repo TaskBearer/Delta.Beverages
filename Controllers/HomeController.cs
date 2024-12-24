@@ -366,7 +366,7 @@ namespace Delta.Beverages.Web.Controllers
                     {
                         // Use parameterized query to prevent SQL injection
                         cmd.Parameters.AddWithValue("@RunID", selectedRunID);
-                        3333988
+
                         // Open the connection if not already open
                         if (con.State != ConnectionState.Open)
                             con.Open();
